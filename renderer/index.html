@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d11" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>My Game Launcher</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-lockup">
+          <div class="brand-mark"><span></span><span></span><span></span></div>
+          <div>
+          <div class="brand-name">MY GAME</div>
+            <div class="brand-caption">GAME LAUNCHER</div>
+          </div>
+        </div>
+
+        <nav class="primary-nav" aria-label="主导航">
+          <button class="nav-item active" data-view="library"><span class="nav-icon">⌂</span><span>游戏库</span><span class="nav-count" id="allCount">0</span></button>
+          <button class="nav-item" data-view="recent"><span class="nav-icon">◷</span><span>最近启动</span></button>
+          <button class="nav-item" data-view="favorites"><span class="nav-icon">★</span><span>我的收藏</span><span class="nav-count" id="favoriteCount">0</span></button>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-label">快捷入口</div>
+        <button class="side-action" id="sidebarImport"><span class="side-action-icon">＋</span><span>导入游戏</span></button>
+        <button class="side-action" id="sidebarData"><span class="side-action-icon">⌁</span><span>数据文件夹</span></button>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-footer-meta"><div class="sync-indicator"><span class="status-dot"></span><span>本地库已同步</span></div><div class="version" id="versionLabel">v0.1.0</div></div>
+          <button class="settings-button" id="settingsButton" title="打开设置"><span>⚙</span><span>设置</span></button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="view-heading">
+            <div class="heading-kicker" id="viewKicker">YOUR COLLECTION</div>
+            <h1 id="viewTitle">游戏库</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="search-box">
+              <span class="search-icon">⌕</span>
+              <input id="searchInput" type="search" placeholder="搜索游戏" autocomplete="off" />
+              <span class="search-key">/</span>
+            </div>
+            <button class="icon-button" id="refreshButton" title="刷新游戏库" aria-label="刷新游戏库">↻</button>
+            <button class="avatar-button" title="本地启动器">M</button>
+          </div>
+        </header>
+
+        <section class="hero-strip">
+          <div class="hero-copy">
+            <div class="hero-eyebrow"><span class="pulse-dot"></span> READY WHEN YOU ARE</div>
+            <h2>今天，玩点什么？</h2>
+            <p>把你的游戏放在一个安静、顺手的地方。</p>
+          </div>
+          <div class="hero-metrics">
+            <div class="metric"><span class="metric-label">游戏数量</span><strong id="totalMetric">0</strong></div>
+            <div class="metric"><span class="metric-label">累计时长</span><strong id="timeMetric">0h</strong></div>
+            <div class="metric"><span class="metric-label">最近游玩</span><strong id="lastMetric">暂无</strong></div>
+          </div>
+        </section>
+
+        <section class="library-toolbar">
+          <div>
+            <span class="section-title" id="sectionTitle">全部游戏</span>
+            <span class="section-subtitle" id="sectionSubtitle">按最近添加排序</span>
+          </div>
+          <div class="toolbar-actions">
+            <label class="sort-select"><span>排序</span><select id="sortSelect"><option value="added">最近添加</option><option value="played">最近启动</option><option value="name">名称</option><option value="time">游玩时长</option></select></label>
+            <button class="primary-button" id="importButton"><span>＋</span> 导入游戏</button>
+          </div>
+        </section>
+
+        <section class="library-content" id="libraryContent"></section>
+      </main>
+    </div>
+
+    <div class="modal-backdrop hidden" id="modalBackdrop">
+      <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+        <div class="modal-header">
+          <div><div class="modal-kicker" id="editModalKicker">GAME PROFILE</div><h2 id="editModalTitle">导入游戏</h2></div>
+          <button class="modal-close" data-close-modal title="关闭">×</button>
+        </div>
+        <form id="gameForm">
+          <div class="form-layout">
+            <div class="cover-editor">
+              <div class="cover-preview" id="coverPreview"><span class="cover-placeholder-mark">✦</span><span>暂无封面</span></div>
+              <div class="cover-actions"><button type="button" class="secondary-button full-width" id="findCoverButton"><span>⌕</span> 获取封面</button><button type="button" class="text-button full-width" id="localCoverButton">选择本地图片</button></div>
+            </div>
+            <div class="form-fields">
+              <label class="field"><span>游戏名称</span><input id="nameInput" required maxlength="80" placeholder="例如：Hades" /></label>
+              <label class="field"><span>启动文件</span><div class="input-with-button"><input id="exeInput" readonly required placeholder="选择 .exe 文件" /><button type="button" class="field-button" id="browseExeButton">选择</button></div></label>
+              <label class="field"><span>启动参数 <em>可选</em></span><input id="argsInput" maxlength="500" placeholder="例如：-windowed -novid" /></label>
+              <label class="field"><span>分类 <em>可选</em></span><input id="categoryInput" maxlength="30" placeholder="例如：动作 / RPG" /></label>
+              <div class="path-note" id="pathNote">工作目录将自动使用游戏所在文件夹。</div>
+            </div>
+          </div>
+          <div class="modal-footer"><button type="button" class="secondary-button" data-close-modal>取消</button><button type="submit" class="primary-button">保存游戏</button></div>
+        </form>
+      </div>
+
+      <div class="modal cover-modal hidden" id="coverModal" role="dialog" aria-modal="true" aria-labelledby="coverModalTitle">
+        <div class="modal-header"><div><div class="modal-kicker">STEAM COVER SEARCH</div><h2 id="coverModalTitle">选择一张封面</h2></div><button class="modal-close" data-close-cover title="关闭">×</button></div>
+        <div class="cover-search-row"><input id="coverSearchInput" placeholder="输入游戏名称" autocomplete="off" /><button class="primary-button" id="coverSearchButton"><span>⌕</span> 搜索</button></div>
+        <div class="cover-results" id="coverResults"><div class="cover-search-empty">输入名称，从 Steam 搜索封面</div></div>
+      </div>
+
+      <div class="modal settings-modal hidden" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+        <div class="modal-header"><div><div class="modal-kicker">LAUNCHER SETTINGS</div><h2 id="settingsModalTitle">设置</h2></div><button class="modal-close" data-close-settings title="关闭">×</button></div>
+        <div class="settings-body">
+          <section class="settings-section">
+            <div class="settings-section-heading"><div><h3>外观</h3><p>调整启动器的显示风格。</p></div><span class="settings-section-icon">◐</span></div>
+            <div class="theme-options" id="themeOptions">
+              <button class="theme-option active" data-theme-choice="dark"><span class="theme-swatch theme-swatch-dark"></span><span><strong>深色</strong><small>沉浸式深色界面</small></span><span class="theme-check">✓</span></button>
+              <button class="theme-option" data-theme-choice="light"><span class="theme-swatch theme-swatch-light"></span><span><strong>浅色</strong><small>明亮清晰的界面</small></span><span class="theme-check">✓</span></button>
+              <button class="theme-option" data-theme-choice="system"><span class="theme-swatch theme-swatch-system"></span><span><strong>跟随系统</strong><small>使用 Windows 的主题设置</small></span><span class="theme-check">✓</span></button>
+            </div>
+          </section>
+          <section class="settings-section">
+            <div class="settings-section-heading"><div><h3>游戏管理</h3><p>维护路径状态和游戏库内容。</p></div><span class="settings-section-icon">▦</span></div>
+            <div class="settings-actions">
+              <button class="settings-action" data-settings-action="scan"><span class="settings-action-icon">↻</span><span><strong>重新扫描游戏路径</strong><small>检查游戏文件是否仍然存在</small></span><span class="settings-arrow">›</span></button>
+              <button class="settings-action" data-settings-action="remove-missing"><span class="settings-action-icon">⌫</span><span><strong>移除失效记录</strong><small>只移除文件不存在的库记录</small></span><span class="settings-arrow">›</span></button>
+            </div>
+          </section>
+          <section class="settings-section">
+            <div class="settings-section-heading"><div><h3>数据与维护</h3><p>管理本地数据和备份。</p></div><span class="settings-section-icon">⌁</span></div>
+            <div class="settings-actions">
+              <button class="settings-action" data-settings-action="export"><span class="settings-action-icon">↑</span><span><strong>导出游戏库</strong><small>保存游戏信息备份，不会复制游戏文件</small></span><span class="settings-arrow">›</span></button>
+              <button class="settings-action" data-settings-action="import"><span class="settings-action-icon">↓</span><span><strong>导入游戏库</strong><small>从 JSON 备份恢复游戏记录</small></span><span class="settings-arrow">›</span></button>
+              <button class="settings-action" data-settings-action="open-data"><span class="settings-action-icon">⌂</span><span><strong>打开数据文件夹</strong><small>查看游戏库和封面缓存</small></span><span class="settings-arrow">›</span></button>
+            </div>
+          </section>
+        </div>
+        <div class="modal-footer"><button type="button" class="primary-button" data-close-settings>完成</button></div>
+      </div>
+    </div>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+    <div class="game-context-menu hidden" id="gameContextMenu" role="menu">
+      <button class="context-menu-item" data-context-action="remove" role="menuitem"><span class="context-menu-icon">×</span><span>移出游戏库</span></button>
+      <button class="context-menu-item" data-context-action="edit" role="menuitem"><span class="context-menu-icon">✎</span><span>编辑游戏</span></button>
+      <button class="context-menu-item" data-context-action="reveal" role="menuitem"><span class="context-menu-icon">⌁</span><span>打开游戏所在文件夹</span></button>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>

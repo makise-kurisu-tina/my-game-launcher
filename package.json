@@ -1,0 +1,49 @@
+{
+  "name": "my-game-launcher",
+  "version": "0.4.0",
+  "description": "A polished local game launcher for Windows.",
+  "main": "main.js",
+  "author": "Northstar",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64",
+    "pack": "electron-builder --dir --win"
+  },
+  "build": {
+    "appId": "com.mygamelauncher.app",
+    "productName": "My Game Launcher",
+    "icon": "build/icon-convert/icon.ico",
+    "directories": {
+      "output": "../../outputs"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "My-Game-Launcher-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "My Game Launcher"
+    }
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  }
+}
